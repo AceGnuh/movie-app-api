@@ -1,4 +1,3 @@
-import { Category } from 'src/categories/category.entity';
 import {
   BeforeUpdate,
   Column,
@@ -8,6 +7,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Category } from 'src/categories/entities/category.entity';
 
 @Entity()
 export class Film {

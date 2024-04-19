@@ -8,7 +8,7 @@ import {
   Min,
 } from 'class-validator';
 import { PartialType } from '@nestjs/mapped-types';
-import { Category } from 'src/categories/category.entity';
+import { Category } from 'src/categories/entities/category.entity';
 
 export class CreateFilmDTO {
   @IsString()
@@ -38,16 +38,4 @@ export class CreateFilmDTO {
   releaseDate: Date;
 
   category: Category;
-}
-
-export class UpdateFilmDTO extends PartialType(CreateFilmDTO) {}
-
-export class PartialUpdateFilmDTO {
-  @IsBoolean()
-  @IsOptional()
-  status: boolean;
-
-  @IsNumber()
-  @IsOptional()
-  order: number;
 }

@@ -17,9 +17,9 @@ export class AuthService {
   ): Promise<{ access_token: string }> {
     const user = await this.usersService.findOne(username);
     if (user?.password !== pass) {
-      throw new UnauthorizedException({ 
-        message: 'Username or password invalid', 
-        statusCode: 401
+      throw new UnauthorizedException({
+        message: 'Username or password invalid',
+        statusCode: 401,
       });
     }
     const payload = { sub: user.userId, username: user.username };

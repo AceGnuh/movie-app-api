@@ -11,10 +11,11 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { ResponseDTO } from 'src/DTOs/response.dto';
-import { Category } from './category.entity';
+import { ResponseDTO } from 'src/common/response.dto';
+import { Category } from './entities/category.entity';
 import { CategoryService } from './category.service';
-import { CreateCategoryDTO, UpdateCategoryDTO } from 'src/DTOs/category.dto';
+import { CreateCategoryDTO } from 'src/categories/dto/create-category.dto';
+import { UpdateCategoryDTO } from 'src/categories/dto/update-category.dto';
 import { Public } from 'src/auth/auth.decorator';
 
 @Public()

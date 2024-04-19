@@ -1,12 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Category } from './category.entity';
-import {
-  CreateCategoryDTO,
-  PartialUpdateCategoryDTO,
-  UpdateCategoryDTO,
-} from 'src/DTOs/category.dto';
+import { Category } from './entities/category.entity';
+import { CreateCategoryDTO } from 'src/categories/dto/create-category.dto';
+import { UpdateCategoryDTO } from 'src/categories/dto/update-category.dto';
 
 @Injectable()
 export class CategoryService {
@@ -16,7 +13,7 @@ export class CategoryService {
   ) {}
 
   async findAll(): Promise<Category[]> {
-    return await this.categoryRepository.find({
+    const categories = await this.categoryRepository.find({
       relations: ['films'],
       where: {
         status: true,
@@ -25,6 +22,13 @@ export class CategoryService {
         order: 'DESC',
       },
     });
+
+    // Remove films that are not active in category
+    categories.forEach((category) => {
+      category.films = category.films.filter((film) => film.status);
+    });
+
+    return categories;
   }
 
   async findById(id: string): Promise<Category> {
@@ -36,6 +40,7 @@ export class CategoryService {
       },
     });
 
+    // Remove films that are not active
     category.films = category.films.filter((film) => film.status);
 
     return category;
@@ -49,22 +54,6 @@ export class CategoryService {
     await this.categoryRepository.update(id, categoryData);
 
     return this.categoryRepository.findOne({ where: { categoryId: id } });
-  }
-
-  async partialUpdate(
-    id: string,
-    categoryData: PartialUpdateCategoryDTO,
-  ): Promise<Category> {
-    const category = await this.categoryRepository.findOne({
-      where: { categoryId: id },
-    });
-
-    category.status = categoryData?.status || category.status;
-    category.order = categoryData?.order || category.order;
-
-    await this.categoryRepository.update(id, category);
-
-    return category;
   }
 
   async delete(id: string): Promise<void> {

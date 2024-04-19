@@ -1,15 +1,11 @@
 import { Module } from '@nestjs/common';
-import { FilmController } from './films/film.controller';
-import { FilmService } from './films/film.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Film } from './films/film.entity';
 import { ConfigModule } from '@nestjs/config';
-import configInformation from './config/config-information';
-import { CategoryController } from './categories/category.controller';
-import { CategoryService } from './categories/category.service';
-import { Category } from './categories/category.entity';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
+import configInformation from './common/setting-information';
+import { FilmsModule } from './films/films.module';
+import { CategoriesModule } from './categories/categories.module';
 
 @Module({
   imports: [
@@ -24,10 +20,11 @@ import { UsersModule } from './users/users.module';
     }),
     AuthModule,
     UsersModule,
-    TypeOrmModule.forFeature([Film, Category]),
+    FilmsModule,
+    CategoriesModule,
   ],
-  controllers: [CategoryController, FilmController],
-  providers: [CategoryService, FilmService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {
   constructor() {}

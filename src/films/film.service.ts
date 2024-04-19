@@ -1,12 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Film } from './film.entity';
-import {
-  CreateFilmDTO,
-  PartialUpdateFilmDTO,
-  UpdateFilmDTO,
-} from 'src/DTOs/film.dto';
+import { Film } from './entities/film.entity';
+import { CreateFilmDTO } from 'src/films/dto/create-film.dto';
+import { UpdateFilmDTO } from 'src/films/dto/update-film.dto';
+import { PartialUpdateFilmDTO } from 'src/films/dto/partial-update-film.dto';
 
 @Injectable()
 export class FilmService {

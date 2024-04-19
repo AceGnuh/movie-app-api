@@ -10,24 +10,20 @@ import {
   Put,
   Delete,
   HttpCode,
+  Request,
   Patch,
   ParseUUIDPipe,
   StreamableFile,
   Header,
-  UseInterceptors,
-  UploadedFile,
 } from '@nestjs/common';
 import { FilmService } from './film.service';
-import { Film } from './film.entity';
-import { ResponseDTO } from 'src/DTOs/response.dto';
-import {
-  CreateFilmDTO,
-  UpdateFilmDTO,
-  PartialUpdateFilmDTO,
-} from 'src/DTOs/film.dto';
+import { Film } from './entities/film.entity';
+import { ResponseDTO } from 'src/common/response.dto';
+import { CreateFilmDTO } from 'src/films/dto/create-film.dto';
+import { UpdateFilmDTO } from './dto/update-film.dto';
+import { PartialUpdateFilmDTO } from './dto/partial-update-film.dto';
 import { createReadStream } from 'fs';
 import { join } from 'path';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { Public } from 'src/auth/auth.decorator';
 
 @Public()
@@ -35,9 +31,8 @@ import { Public } from 'src/auth/auth.decorator';
 export class FilmController {
   constructor(private readonly filmService: FilmService) {}
 
-  @Public()
   @Get()
-  async getAllFilms(): Promise<ResponseDTO<Film[]>> {
+  async getAllFilms(@Request() req): Promise<ResponseDTO<Film[]>> {
     const films = await this.filmService.findAll();
 
     if (!films.length) {
@@ -80,19 +75,10 @@ export class FilmController {
   }
 
   @Post()
-  @UseInterceptors(FileInterceptor('file'))
   async createFilm(@Body() film: CreateFilmDTO): Promise<ResponseDTO<Film>> {
     const filmCreated = await this.filmService.create(film);
 
     return new ResponseDTO<Film>(HttpStatus.CREATED, filmCreated);
-  }
-
-  @Post('upload')
-  @UseInterceptors(FileInterceptor('file'))
-  async uploadFilm(@UploadedFile() file: Express.Multer.File): Promise<string> {
-    console.log('File data', file);
-
-    return file.filename;
   }
 
   @Put('/:id')
