@@ -1,17 +1,15 @@
 import {
-  BeforeUpdate,
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
-  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Category } from 'src/categories/entities/category.entity';
 
-@Entity()
+@Entity({ name: 'film' })
 export class Film {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn('uuid', { name: 'film_id' })
   filmId: string;
 
   @Column({ length: 300 })
@@ -23,7 +21,7 @@ export class Film {
   @Column({ default: true })
   status: boolean;
 
-  @Column({ default: 0 })
+  @Column({ type: 'int8', default: 0 })
   view: number;
 
   @Column({ default: 0 })
@@ -38,27 +36,26 @@ export class Film {
   @Column({ default: 0 })
   order: number;
 
+  @Column({ default: 'Unknown' })
+  director: string;
+
   @Column({
+    name: 'release_date',
     type: 'timestamp with time zone',
     default: () => 'CURRENT_TIMESTAMP',
   })
   releaseDate: Date;
 
-  @CreateDateColumn({ type: 'timestamp with time zone' })
+  @CreateDateColumn({ name: 'create_at', type: 'timestamp with time zone' })
   createAt: Date;
 
-  @UpdateDateColumn({ type: 'timestamp with time zone' })
+  @UpdateDateColumn({ name: 'modify_at', type: 'timestamp with time zone' })
   modifyAt: Date;
 
-  @ManyToOne(() => Category, (category) => category.films)
-  category: Category;
+  @DeleteDateColumn({ name: 'delete_at', type: 'timestamp with time zone' })
+  deleteAt: Date;
 
   constructor(partial: Partial<Film>) {
     Object.assign(this, partial);
-  }
-
-  @BeforeUpdate()
-  handleBeforeUpdate() {
-    this.modifyAt = new Date();
   }
 }

@@ -1,34 +1,39 @@
+import { Transform } from 'class-transformer';
 import {
   IsBoolean,
   IsDateString,
   IsNotEmpty,
   IsNumber,
-  IsOptional,
   IsString,
   Min,
 } from 'class-validator';
-import { PartialType } from '@nestjs/mapped-types';
-import { Category } from 'src/categories/entities/category.entity';
+import { ERROR_MESSAGE } from '@custom-messages/error.message';
 
 export class CreateFilmDTO {
   @IsString()
   @IsNotEmpty()
+  @Transform(({ value }) => value.trim())
   title: string;
 
   @IsString()
+  @Transform(({ value }) => value.trim())
   description: string;
 
   @IsString()
   thumbnail: string;
 
-  @IsNumber()
+  @IsNumber({}, { message: ERROR_MESSAGE.IS_NUMBER('view') })
+  @Min(1)
+  view: number;
+
+  @IsNumber({}, { message: ERROR_MESSAGE.IS_NUMBER('duration') })
   @Min(1)
   duration: number;
 
   @IsString()
   path: string;
 
-  @IsNumber()
+  @IsNumber({}, { message: ERROR_MESSAGE.IS_NUMBER('order') })
   order: number;
 
   @IsBoolean()
@@ -36,6 +41,4 @@ export class CreateFilmDTO {
 
   @IsDateString()
   releaseDate: Date;
-
-  category: Category;
 }

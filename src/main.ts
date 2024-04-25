@@ -5,16 +5,7 @@ import configInformation from './common/setting-information';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
-  app.useGlobalPipes(
-    new ValidationPipe({
-      forbidUnknownValues: true,
-      transformOptions: {
-        exposeUnsetFields: false,
-      },
-    }),
-  );
-
+  app.useGlobalPipes(new ValidationPipe());
   await app.listen(configInformation().port);
 }
 

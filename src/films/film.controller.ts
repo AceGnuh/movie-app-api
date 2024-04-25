@@ -1,44 +1,46 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   Body,
   Controller,
   Get,
   HttpStatus,
-  NotFoundException,
   Param,
   Post,
   Put,
   Delete,
-  HttpCode,
-  Request,
   Patch,
   ParseUUIDPipe,
   StreamableFile,
   Header,
+  Query,
+  ValidationPipe,
+  UsePipes,
+  Res,
+  NotFoundException,
 } from '@nestjs/common';
 import { FilmService } from './film.service';
-import { Film } from './entities/film.entity';
-import { ResponseDTO } from 'src/common/response.dto';
-import { CreateFilmDTO } from 'src/films/dto/create-film.dto';
-import { UpdateFilmDTO } from './dto/update-film.dto';
-import { PartialUpdateFilmDTO } from './dto/partial-update-film.dto';
-import { createReadStream } from 'fs';
-import { join } from 'path';
-import { Public } from 'src/auth/auth.decorator';
+import { Film } from '@entities/film.entity';
+import { ResponseDTO } from 'src/dto/response.dto';
+import { CreateFilmDTO } from '@dto/film/create-film.dto';
+import { UpdateFilmDTO } from '@dto/film/update-film.dto';
+import { PartialUpdateFilmDTO } from '@dto/film/partial-update-film.dto';
+import {
+  FILM_ERROR_MESSAGE,
+  FILM_MESSAGE,
+} from '@custom-messages/film.message';
+import { Response } from 'express';
 
-@Public()
 @Controller('films')
+@UsePipes(new ValidationPipe({ transform: true }))
 export class FilmController {
   constructor(private readonly filmService: FilmService) {}
 
   @Get()
-  async getAllFilms(@Request() req): Promise<ResponseDTO<Film[]>> {
-    const films = await this.filmService.findAll();
-
-    if (!films.length) {
-      throw new NotFoundException('No films found');
-    }
-
+  async getAllFilms(
+    @Query('key') key?: string,
+    @Query('min_view') minView?: string,
+    @Query('max_view') maxView?: string,
+  ): Promise<ResponseDTO<Film[]>> {
+    const films = await this.filmService.findAll(key, minView, maxView);
     return new ResponseDTO<Film[]>(HttpStatus.OK, films);
   }
 
@@ -46,39 +48,35 @@ export class FilmController {
   async getFilmById(
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<ResponseDTO<Film>> {
-    const film = await this.filmService.findById(id.trim());
-
-    if (!film) {
-      throw new NotFoundException('Film not found or not available');
-    }
-
+    const film = await this.filmService.findById(id);
     return new ResponseDTO<Film>(HttpStatus.OK, film);
   }
 
   @Get(':id/thumbnail')
   @Header('Content-Type', 'image/png')
   async getImageFilm(
+    @Res({ passthrough: true }) res: Response,
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<StreamableFile> {
-    const film = await this.filmService.findById(id);
-
-    if (!film || !film.status) {
-      throw new NotFoundException('Film not found or not available');
+    try {
+      return await this.filmService.readThumbnail(id);
+    } catch (error) {
+      res.set({
+        'Content-Type': 'application/json',
+      });
+      throw new NotFoundException(FILM_ERROR_MESSAGE.THUMBNAIL_NOT_FOUND);
     }
-
-    const thumbnailFilmData = film.thumbnail;
-    const thumbnailFilmImage = createReadStream(
-      join(process.cwd(), 'resource', 'images', thumbnailFilmData),
-    );
-
-    return new StreamableFile(thumbnailFilmImage);
   }
 
   @Post()
   async createFilm(@Body() film: CreateFilmDTO): Promise<ResponseDTO<Film>> {
     const filmCreated = await this.filmService.create(film);
 
-    return new ResponseDTO<Film>(HttpStatus.CREATED, filmCreated);
+    return new ResponseDTO<Film>(
+      HttpStatus.CREATED,
+      filmCreated,
+      FILM_MESSAGE.CREATE,
+    );
   }
 
   @Put('/:id')
@@ -86,13 +84,13 @@ export class FilmController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() film: UpdateFilmDTO,
   ): Promise<ResponseDTO<Film>> {
-    const filmUpdated = await this.filmService.update(id.trim(), film);
+    const filmUpdated = await this.filmService.update(id, film);
 
-    if (!filmUpdated) {
-      throw new NotFoundException('Film not found');
-    }
-
-    return new ResponseDTO<Film>(HttpStatus.CREATED, filmUpdated);
+    return new ResponseDTO<Film>(
+      HttpStatus.CREATED,
+      filmUpdated,
+      FILM_MESSAGE.UPDATE,
+    );
   }
 
   @Patch('/:id')
@@ -102,16 +100,17 @@ export class FilmController {
   ): Promise<ResponseDTO<Film>> {
     const filmUpdated = await this.filmService.partialUpdate(id, film);
 
-    if (!filmUpdated) {
-      throw new NotFoundException('Film not found');
-    }
-
-    return new ResponseDTO<Film>(HttpStatus.OK, filmUpdated);
+    return new ResponseDTO<Film>(
+      HttpStatus.OK,
+      filmUpdated,
+      FILM_MESSAGE.UPDATE,
+    );
   }
 
   @Delete('/:id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteFilm(@Param('id') id: string): Promise<void> {
-    await this.filmService.delete(id);
+  async deleteFilm(@Param('id') id: string): Promise<ResponseDTO<Film>> {
+    const film = await this.filmService.delete(id);
+
+    return new ResponseDTO<Film>(HttpStatus.OK, film, FILM_MESSAGE.DELETE);
   }
 }
