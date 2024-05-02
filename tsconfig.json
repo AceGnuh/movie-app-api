@@ -21,6 +21,7 @@
       "@custom-messages/*": ["src/common/message/*"],
       "@dto/*": ["src/dto/*"],
       "@entities/*": ["src/entities/*"],
+      "@films/*": ["src/films/*"],
     }
   }
 }

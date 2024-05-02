@@ -147,7 +147,7 @@ export class FilmService {
       },
     });
 
-    if (film.filmId !== filmByTitle.filmId) {
+    if (film && film.filmId !== filmByTitle.filmId) {
       throw new BadRequestException(FILM_ERROR_MESSAGE.TITLE_EXIST);
     }
 

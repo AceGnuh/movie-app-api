@@ -17,4 +17,4 @@ COPY . .
 EXPOSE 4000
 
 # Khởi động ứng dụng khi container được khởi chạy
-CMD ["yarn", "run", "start"]
+CMD ["yarn", "run", "start:dev"]
