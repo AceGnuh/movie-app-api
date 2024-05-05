@@ -19,7 +19,7 @@ import {
 } from '@nestjs/common';
 import { FilmService } from './film.service';
 import { Film } from '@entities/film.entity';
-import { ResponseDTO } from 'src/dto/response.dto';
+import { ResponseDTO } from 'src/dtos/response.dto';
 import { CreateFilmDTO } from '@dto/film/create-film.dto';
 import { UpdateFilmDTO } from '@dto/film/update-film.dto';
 import { PartialUpdateFilmDTO } from '@dto/film/partial-update-film.dto';
@@ -87,7 +87,7 @@ export class FilmController {
     const filmUpdated = await this.filmService.update(id, film);
 
     return new ResponseDTO<Film>(
-      HttpStatus.CREATED,
+      HttpStatus.OK,
       filmUpdated,
       FILM_MESSAGE.UPDATE,
     );
@@ -108,7 +108,7 @@ export class FilmController {
   }
 
   @Delete('/:id')
-  async deleteFilm(@Param('id') id: string): Promise<ResponseDTO<Film>> {
+  async deleteFilm(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseDTO<Film>> {
     const film = await this.filmService.delete(id);
 
     return new ResponseDTO<Film>(HttpStatus.OK, film, FILM_MESSAGE.DELETE);

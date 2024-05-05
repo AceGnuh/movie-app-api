@@ -1,8 +1,15 @@
+import { imageDirectory } from '@constants';
 import { FILM_ERROR_MESSAGE } from '@custom-messages/film.message';
 import { CreateFilmDTO } from '@dto/film/create-film.dto';
 import { UpdateFilmDTO } from '@dto/film/update-film.dto';
 import { Film } from '@entities/film.entity';
-import { BadRequestException } from '@nestjs/common';
+import {
+  BadRequestException,
+  NotFoundException,
+  StreamableFile,
+} from '@nestjs/common';
+import { createReadStream } from 'fs';
+import { join } from 'path';
 
 export const mockFilm: Film = {
   filmId: 'ca519142-a44d-45fd-98a5-298df1b72fa6',
@@ -16,28 +23,32 @@ export const mockFilm: Film = {
   path: 'movies/spirited_away.mkv',
   order: 3,
   director: 'Hayao Miyazaki',
-  releaseDate: new Date('2001-07-20T00:00:00.000Z'),
-  createAt: new Date('2024-04-24T07:00:06.720Z'),
-  modifyAt: new Date('2024-04-24T07:00:06.720Z'),
-  deleteAt: null,
+  releasedDate: new Date('2001-07-20T00:00:00.000Z'),
+  createdAt: new Date('2024-04-24T07:00:06.720Z'),
+  modifiedAt: new Date('2024-04-24T07:00:06.720Z'),
+  deletedAt: null,
+};
+
+export const mockDataUpdate = {
+  title: 'The Godfather 2',
 };
 
 export const mockFilmUpdate: Film = {
   filmId: 'b055053d-215b-4beb-95d1-a6b4e352d0ff',
-  title: 'The Godfather',
+  title: 'The Godfather 2',
   description:
     'A young girl enters the world of spirits and must find a way to save her parents.',
   status: true,
   view: 12000,
   duration: 120,
-  thumbnail: 'spirited_away.png',
+  thumbnail: 'Interstellar.jpeg',
   path: 'movies/spirited_away.mkv',
   order: 3,
   director: 'Hayao Miyazaki',
-  releaseDate: new Date('2001-07-20T00:00:00.000Z'),
-  createAt: new Date('2024-04-24T07:00:06.720Z'),
-  modifyAt: new Date('2024-04-24T07:00:06.720Z'),
-  deleteAt: null,
+  releasedDate: new Date('2001-07-20T00:00:00.000Z'),
+  createdAt: new Date('2024-04-24T07:00:06.720Z'),
+  modifiedAt: new Date('2024-04-24T07:00:06.720Z'),
+  deletedAt: null,
 };
 
 export const mockFilmTitleExist = 'The Godfather 2';
@@ -45,14 +56,23 @@ export const mockFilmTitleExist = 'The Godfather 2';
 export const mockFilmId = 'ca519142-a44d-45fd-98a5-298df1b72fa6';
 export const mockFilmInvalidId = 'ca519142-a44d-45fd-98a5-298df1b72fa7';
 
+export const mockThumbnailFilm = () => {
+  const thumbnailFilmData = mockFilm.thumbnail;
+  const thumbnailFilmImage = createReadStream(
+    join(process.cwd(), imageDirectory, thumbnailFilmData),
+  );
+  return new StreamableFile(thumbnailFilmImage);
+};
+
 export const mockFilmService = {
   findById: jest.fn().mockImplementation((id: string) => {
     if (id !== mockFilmId) {
-      return null;
+      throw new NotFoundException(FILM_ERROR_MESSAGE.NOT_FOUND);
     }
     return mockFilm;
   }),
   findAll: jest.fn().mockImplementation(() => [mockFilm]),
+  getImageFilm: jest.fn().mockImplementation(() => mockThumbnailFilm()),
   create: jest.fn().mockImplementation((film: CreateFilmDTO) => {
     if (film.title === mockFilmTitleExist) {
       throw new BadRequestException(FILM_ERROR_MESSAGE.TITLE_EXIST);

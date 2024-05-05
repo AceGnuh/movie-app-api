@@ -3,6 +3,7 @@ import { FilmService } from '@films/film.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository, UpdateResult } from 'typeorm';
 import {
+  mockDataUpdate,
   mockFilm,
   mockFilmId,
   mockFilmInvalidId,
@@ -90,20 +91,25 @@ describe('FilmResolver', () => {
 
     it(`should throw error: film's title has been exist`, async () => {
       jest.spyOn(filmRepository, 'findOne').mockResolvedValue(mockFilm);
+
+      const result = async () => {
+        return await filmService.create(mockFilm);
+      };
       expect(filmRepository.findOne).toHaveBeenCalled();
-      await expect(filmService.create(mockFilm)).rejects.toThrow(
-        FILM_ERROR_MESSAGE.TITLE_EXIST,
-      );
+      expect(result()).rejects.toThrow(FILM_ERROR_MESSAGE.TITLE_EXIST);
     });
   });
 
   describe('mutation: update film', () => {
     it(`should not modify a film object because not found id`, async () => {
       jest.spyOn(filmRepository, 'findOne').mockResolvedValue(null);
+
+      const result = async () => {
+        return await filmService.update(mockFilmId, mockFilm);
+      };
+
+      expect(result()).rejects.toThrow(FILM_ERROR_MESSAGE.NOT_FOUND);
       expect(filmRepository.findOne).toHaveBeenCalled();
-      await expect(filmService.update(mockFilmId, mockFilm)).rejects.toThrow(
-        FILM_ERROR_MESSAGE.NOT_FOUND,
-      );
       expect(filmRepository.update).not.toHaveBeenCalled();
     });
 
@@ -123,15 +129,19 @@ describe('FilmResolver', () => {
     });
 
     it(`should modify a film object`, async () => {
+      jest.spyOn(filmRepository, 'findOne').mockResolvedValue(mockFilm);
       jest
         .spyOn(filmRepository, 'update')
         .mockResolvedValue({ raw: mockFilm, affected: 1 } as UpdateResult);
 
-      const film = await filmRepository.update(mockFilmId, mockFilm);
+      const film = await filmService.update(mockFilmId, mockDataUpdate);
 
       expect(filmRepository.update).toHaveBeenCalledTimes(1);
-      expect(filmRepository.update).toHaveBeenCalledWith(mockFilmId, mockFilm);
-      expect(film.affected).toEqual(1);
+      expect(filmRepository.update).toHaveBeenCalledWith(
+        mockFilmId,
+        mockDataUpdate,
+      );
+      expect(film).toEqual({ ...mockFilm, ...mockDataUpdate });
     });
   });
 

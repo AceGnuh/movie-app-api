@@ -1,14 +1,8 @@
-import {
-  Column,
-  CreateDateColumn,
-  DeleteDateColumn,
-  Entity,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { BaseEntity } from './base.entity';
 
 @Entity({ name: 'film' })
-export class Film {
+export class Film extends BaseEntity {
   @PrimaryGeneratedColumn('uuid', { name: 'film_id' })
   filmId: string;
 
@@ -44,18 +38,10 @@ export class Film {
     type: 'timestamp with time zone',
     default: () => 'CURRENT_TIMESTAMP',
   })
-  releaseDate: Date;
-
-  @CreateDateColumn({ name: 'create_at', type: 'timestamp with time zone' })
-  createAt: Date;
-
-  @UpdateDateColumn({ name: 'modify_at', type: 'timestamp with time zone' })
-  modifyAt: Date;
-
-  @DeleteDateColumn({ name: 'delete_at', type: 'timestamp with time zone' })
-  deleteAt: Date;
+  releasedDate: Date;
 
   constructor(partial: Partial<Film>) {
+    super();
     Object.assign(this, partial);
   }
 }

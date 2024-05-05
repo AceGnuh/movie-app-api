@@ -86,9 +86,10 @@
       "^@config/(.*)$": "<rootDir>/configs/$1",
       "^@repositories/(.*)$": "<rootDir>/repositories/$1",
       "^@custom-messages/(.*)$": "<rootDir>/common/message/$1",
-      "^@dto/(.*)$": "<rootDir>/dto/$1",
+      "^@dto/(.*)$": "<rootDir>/dtos/$1",
       "^@entities/(.*)$": "<rootDir>/entities/$1",
-      "^@films/(.*)$": "<rootDir>/films/$1"
+      "^@films/(.*)$": "<rootDir>/films/$1",
+      "^@constants": "<rootDir>/common/constant"
     }
   }
 }

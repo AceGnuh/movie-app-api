@@ -17,4 +17,7 @@ export const ERROR_MESSAGE = {
   VALUE_NOT_APPROPRIATE: function (columnName: string) {
     return `Value of ${columnName} is not appropriate`;
   },
+  IS_DATE: function (columnName: string) {
+    return `${columnName} must follow the date format`;
+  },
 };

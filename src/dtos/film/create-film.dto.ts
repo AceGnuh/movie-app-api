@@ -8,6 +8,7 @@ import {
   Min,
 } from 'class-validator';
 import { ERROR_MESSAGE } from '@custom-messages/error.message';
+import { BadRequestException } from '@nestjs/common';
 
 export class CreateFilmDTO {
   @IsString()

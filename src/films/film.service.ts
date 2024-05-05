@@ -14,6 +14,7 @@ import { UpdateFilmDTO } from '@dto/film/update-film.dto';
 import { PartialUpdateFilmDTO } from '@dto/film/partial-update-film.dto';
 import { FILM_ERROR_MESSAGE } from '@custom-messages/film.message';
 import { ERROR_MESSAGE } from '@custom-messages/error.message';
+import { imageDirectory } from '@constants';
 
 @Injectable()
 export class FilmService {
@@ -109,7 +110,7 @@ export class FilmService {
 
     const thumbnailFilmData = film.thumbnail;
     const thumbnailFilmImage = createReadStream(
-      join(process.cwd(), 'resource', 'images', thumbnailFilmData),
+      join(process.cwd(), imageDirectory, thumbnailFilmData),
     );
     return new StreamableFile(thumbnailFilmImage);
   }
@@ -118,7 +119,7 @@ export class FilmService {
     const film = await this.filmRepository.findOne({
       where: {
         title: filmData.title,
-        deleteAt: IsNull(),
+        deletedAt: IsNull(),
       },
     });
 
@@ -143,7 +144,7 @@ export class FilmService {
     const filmByTitle = await this.filmRepository.findOne({
       where: {
         title: filmData.title,
-        deleteAt: IsNull(),
+        deletedAt: IsNull(),
       },
     });
 
@@ -170,7 +171,7 @@ export class FilmService {
     //update status and order
     film.status = filmData?.status || film.status;
     film.order = filmData?.order || film.order;
-    film.modifyAt = new Date();
+    film.modifiedAt = new Date();
 
     await this.filmRepository.update(id, film);
     return film;

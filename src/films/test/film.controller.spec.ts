@@ -7,6 +7,8 @@ import {
   mockFilmInvalidId,
   mockFilmService,
 } from './__mock__/film.mock';
+import { HttpStatus, NotFoundException } from '@nestjs/common';
+import { Not } from 'typeorm';
 
 describe('Test Film Controller', () => {
   let filmController: FilmController;
@@ -34,21 +36,25 @@ describe('Test Film Controller', () => {
 
   describe('query film', () => {
     it('should return null because the id is invalid', async () => {
-      const result = await filmController.getFilmById(mockFilmInvalidId);
-      expect(filmService.findById).toHaveBeenCalled();
-      expect(result.data).toBeNull();
+      const result = async () => {
+        return await filmController.getFilmById(mockFilmInvalidId);
+      };
+      expect(filmService.findById).not.toHaveBeenCalled();
+      expect(result()).rejects.toThrow(NotFoundException);
     });
 
     it('should return a film object', async () => {
       const film = await filmController.getFilmById(mockFilmId);
       expect(filmService.findById).toHaveBeenCalledWith(mockFilmId);
       expect(film.data).toEqual(mockFilm);
+      expect(film.statusCode).toBe(HttpStatus.OK);
     });
 
     it('should return a list of film object', async () => {
       const result = await filmController.getAllFilms();
       expect(filmService.findAll).toHaveBeenCalled();
       expect(result.data).toEqual([mockFilm]);
+      expect(result.statusCode).toBe(HttpStatus.OK);
     });
   });
 
@@ -57,6 +63,7 @@ describe('Test Film Controller', () => {
       const result = await filmController.createFilm(mockFilm);
       expect(filmService.create).toHaveBeenCalledWith(mockFilm);
       expect(result.data).toEqual(mockFilm);
+      expect(result.statusCode).toBe(HttpStatus.CREATED);
     });
   });
 
@@ -65,6 +72,16 @@ describe('Test Film Controller', () => {
       const result = await filmController.updateFilm(mockFilmId, mockFilm);
       expect(filmService.update).toHaveBeenCalledWith(mockFilmId, mockFilm);
       expect(result.data).toEqual(mockFilm);
+      expect(result.statusCode).toBe(HttpStatus.OK);
+    });
+  });
+
+  describe('delete film', () => {
+    it('should soft delete a film object', async () => {
+      const result = await filmController.deleteFilm(mockFilmId);
+      expect(filmService.delete).toHaveBeenCalledWith(mockFilmId);
+      expect(result.data).toEqual(mockFilm);
+      expect(result.statusCode).toBe(HttpStatus.OK);
     });
   });
 });

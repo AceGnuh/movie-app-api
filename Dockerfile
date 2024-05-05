@@ -1,20 +1,14 @@
-# Sử dụng image node.js với phiên bản cụ thể làm base image
+# Using Node.js v20 as base image
 FROM node:20
-
-# Thiết lập thư mục làm việc trong container
+# Set up the working directory
 WORKDIR /app
-
-# Sao chép các file package.json và package-lock.json vào thư mục làm việc
+# Copy package.json and package-lock.json to the working directory
 COPY package*.json ./
-
-# Cài đặt các dependencies của ứng dụng
+# Install the dependencies
 RUN yarn install
-
-# Sao chép toàn bộ source code của ứng dụng vào thư mục làm việc
+# Coppy all the files to the working directory
 COPY . .
-
-# Mở cổng mạng cho ứng dụng NestJS chạy trên Docker (điều chỉnh nếu cần thiết)
+# Expose the port 4000 for the application
 EXPOSE 4000
-
-# Khởi động ứng dụng khi container được khởi chạy
+# Start the application in development mode
 CMD ["yarn", "run", "start:dev"]

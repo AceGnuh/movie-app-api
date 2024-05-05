@@ -19,9 +19,10 @@
     "noFallthroughCasesInSwitch": false,
     "paths": {
       "@custom-messages/*": ["src/common/message/*"],
-      "@dto/*": ["src/dto/*"],
+      "@dto/*": ["src/dtos/*"],
       "@entities/*": ["src/entities/*"],
       "@films/*": ["src/films/*"],
+      "@constants": ["src/common/constant"],
     }
   }
 }
