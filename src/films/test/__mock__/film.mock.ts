@@ -29,8 +29,30 @@ export const mockFilm: Film = {
   deletedAt: null,
 };
 
+export const mockFilmDTO: CreateFilmDTO = {
+  title: 'The Godfather',
+  description:
+    'A young girl enters the world of spirits and must find a way to save her parents.',
+  status: true,
+  view: 12000,
+  duration: 120,
+  thumbnail: 'spirited_away.png',
+  path: 'movies/spirited_away.mkv',
+  order: 3,
+  releaseDate: new Date('2001-07-20T00:00:00.000Z'),
+};
+
 export const mockDataUpdate = {
-  title: 'The Godfather 2',
+  title: 'The Godfather',
+  description:
+    'A young girl enters the world of spirits and must find a way to save her parents.',
+  status: true,
+  view: 12000,
+  duration: 120,
+  thumbnail: 'spirited_away.png',
+  path: 'movies/spirited_away.mkv',
+  order: 3,
+  releaseDate: new Date('2001-07-20T00:00:00.000Z'),
 };
 
 export const mockFilmUpdate: Film = {

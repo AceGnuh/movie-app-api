@@ -2,13 +2,14 @@ import { FilmController } from '@films/film.controller';
 import { FilmService } from '@films/film.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import {
+  mockDataUpdate,
   mockFilm,
+  mockFilmDTO,
   mockFilmId,
   mockFilmInvalidId,
   mockFilmService,
 } from './__mock__/film.mock';
 import { HttpStatus, NotFoundException } from '@nestjs/common';
-import { Not } from 'typeorm';
 
 describe('Test Film Controller', () => {
   let filmController: FilmController;
@@ -60,8 +61,8 @@ describe('Test Film Controller', () => {
 
   describe('create film', () => {
     it('should create a new film object', async () => {
-      const result = await filmController.createFilm(mockFilm);
-      expect(filmService.create).toHaveBeenCalledWith(mockFilm);
+      const result = await filmController.createFilm(mockFilmDTO);
+      expect(filmService.create).toHaveBeenCalledWith(mockFilmDTO);
       expect(result.data).toEqual(mockFilm);
       expect(result.statusCode).toBe(HttpStatus.CREATED);
     });
@@ -69,8 +70,8 @@ describe('Test Film Controller', () => {
 
   describe('update film', () => {
     it('should update a film object', async () => {
-      const result = await filmController.updateFilm(mockFilmId, mockFilm);
-      expect(filmService.update).toHaveBeenCalledWith(mockFilmId, mockFilm);
+      const result = await filmController.updateFilm(mockFilmId, mockDataUpdate);
+      expect(filmService.update).toHaveBeenCalledWith(mockFilmId, mockDataUpdate);
       expect(result.data).toEqual(mockFilm);
       expect(result.statusCode).toBe(HttpStatus.OK);
     });

@@ -28,6 +28,7 @@ import {
   FILM_MESSAGE,
 } from '@custom-messages/film.message';
 import { Response } from 'express';
+import { CustomParseUUIDPipe } from 'src/middlewares/custom-parse-uuid';
 
 @Controller('films')
 @UsePipes(new ValidationPipe({ transform: true }))
@@ -41,31 +42,16 @@ export class FilmController {
     @Query('max_view') maxView?: string,
   ): Promise<ResponseDTO<Film[]>> {
     const films = await this.filmService.findAll(key, minView, maxView);
+
     return new ResponseDTO<Film[]>(HttpStatus.OK, films);
   }
 
   @Get(':id')
   async getFilmById(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', CustomParseUUIDPipe) id: string,
   ): Promise<ResponseDTO<Film>> {
     const film = await this.filmService.findById(id);
     return new ResponseDTO<Film>(HttpStatus.OK, film);
-  }
-
-  @Get(':id/thumbnail')
-  @Header('Content-Type', 'image/png')
-  async getImageFilm(
-    @Res({ passthrough: true }) res: Response,
-    @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<StreamableFile> {
-    try {
-      return await this.filmService.readThumbnail(id);
-    } catch (error) {
-      res.set({
-        'Content-Type': 'application/json',
-      });
-      throw new NotFoundException(FILM_ERROR_MESSAGE.THUMBNAIL_NOT_FOUND);
-    }
   }
 
   @Post()
@@ -81,7 +67,7 @@ export class FilmController {
 
   @Put('/:id')
   async updateFilm(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', CustomParseUUIDPipe) id: string,
     @Body() film: UpdateFilmDTO,
   ): Promise<ResponseDTO<Film>> {
     const filmUpdated = await this.filmService.update(id, film);
@@ -93,22 +79,10 @@ export class FilmController {
     );
   }
 
-  @Patch('/:id')
-  async updatePartialFilm(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() film: PartialUpdateFilmDTO,
-  ): Promise<ResponseDTO<Film>> {
-    const filmUpdated = await this.filmService.partialUpdate(id, film);
-
-    return new ResponseDTO<Film>(
-      HttpStatus.OK,
-      filmUpdated,
-      FILM_MESSAGE.UPDATE,
-    );
-  }
-
   @Delete('/:id')
-  async deleteFilm(@Param('id', ParseUUIDPipe) id: string): Promise<ResponseDTO<Film>> {
+  async deleteFilm(
+    @Param('id', CustomParseUUIDPipe) id: string,
+  ): Promise<ResponseDTO<Film>> {
     const film = await this.filmService.delete(id);
 
     return new ResponseDTO<Film>(HttpStatus.OK, film, FILM_MESSAGE.DELETE);

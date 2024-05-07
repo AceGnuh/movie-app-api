@@ -2,19 +2,15 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
-  StreamableFile,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Between, ILike, IsNull, Repository } from 'typeorm';
-import { createReadStream } from 'fs';
-import { join } from 'path';
+import { Between, ILike, IsNull, Not, Repository } from 'typeorm';
 import { Film } from '@entities/film.entity';
 import { CreateFilmDTO } from '@dto/film/create-film.dto';
 import { UpdateFilmDTO } from '@dto/film/update-film.dto';
 import { PartialUpdateFilmDTO } from '@dto/film/partial-update-film.dto';
 import { FILM_ERROR_MESSAGE } from '@custom-messages/film.message';
 import { ERROR_MESSAGE } from '@custom-messages/error.message';
-import { imageDirectory } from '@constants';
 
 @Injectable()
 export class FilmService {
@@ -90,29 +86,10 @@ export class FilmService {
     });
 
     if (!film) {
-      throw new NotFoundException(FILM_ERROR_MESSAGE.NOT_FOUND);
+      throw new NotFoundException(FILM_ERROR_MESSAGE.NOT_FOUND_ID);
     }
 
     return film;
-  }
-
-  async readThumbnail(id: string) {
-    const film = await this.filmRepository.findOne({
-      where: {
-        filmId: id,
-        status: true,
-      },
-    });
-
-    if (!film) {
-      throw new NotFoundException(FILM_ERROR_MESSAGE.NOT_FOUND);
-    }
-
-    const thumbnailFilmData = film.thumbnail;
-    const thumbnailFilmImage = createReadStream(
-      join(process.cwd(), imageDirectory, thumbnailFilmData),
-    );
-    return new StreamableFile(thumbnailFilmImage);
   }
 
   async create(filmData: CreateFilmDTO): Promise<Film> {
@@ -127,11 +104,16 @@ export class FilmService {
       throw new NotFoundException(FILM_ERROR_MESSAGE.TITLE_EXIST);
     }
 
-    return await this.filmRepository.save(filmData);
+    try {
+      const createdFilm = await this.filmRepository.save(filmData);
+      return createdFilm;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 
   async update(id: string, filmData: UpdateFilmDTO): Promise<Film> {
-    const film = await this.filmRepository.findOne({
+    const film: Film = await this.filmRepository.findOne({
       where: {
         filmId: id,
       },
@@ -141,47 +123,32 @@ export class FilmService {
       throw new NotFoundException(FILM_ERROR_MESSAGE.NOT_FOUND);
     }
 
-    const filmByTitle = await this.filmRepository.findOne({
+    const filmByTitle: Film = await this.filmRepository.findOne({
       where: {
-        title: filmData.title,
+        filmId: Not(id),
+        title: filmData.title || '',
         deletedAt: IsNull(),
       },
     });
 
-    if (film && film.filmId !== filmByTitle.filmId) {
+    if (filmByTitle) {
       throw new BadRequestException(FILM_ERROR_MESSAGE.TITLE_EXIST);
     }
 
-    await this.filmRepository.update(id, filmData);
-
-    const responseFilm = { ...film, ...filmData };
-    return responseFilm;
-  }
-
-  async partialUpdate(
-    id: string,
-    filmData: PartialUpdateFilmDTO,
-  ): Promise<Film> {
-    const film = await this.filmRepository.findOne({ where: { filmId: id } });
-
-    if (!film) {
-      throw new NotFoundException(FILM_ERROR_MESSAGE.NOT_FOUND);
+    try {
+      Object.assign(film, filmData);
+      const createdFilm = await this.filmRepository.save(film);
+      return createdFilm;
+    } catch (error) {
+      throw new BadRequestException(error.message);
     }
-
-    //update status and order
-    film.status = filmData?.status || film.status;
-    film.order = filmData?.order || film.order;
-    film.modifiedAt = new Date();
-
-    await this.filmRepository.update(id, film);
-    return film;
   }
 
   async delete(id: string): Promise<Film> {
     const film = await this.filmRepository.findOne({ where: { filmId: id } });
 
     if (!film) {
-      throw new NotFoundException(FILM_ERROR_MESSAGE.NOT_FOUND);
+      throw new NotFoundException(FILM_ERROR_MESSAGE.NOT_FOUND_ID);
     }
 
     await this.filmRepository.softDelete(id);

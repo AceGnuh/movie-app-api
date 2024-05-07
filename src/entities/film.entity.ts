@@ -9,13 +9,13 @@ export class Film extends BaseEntity {
   @Column({ length: 300 })
   title: string;
 
-  @Column('text')
+  @Column('text', { default: '', nullable: true })
   description: string;
 
-  @Column({ default: true })
+  @Column({ default: true, nullable: true })
   status: boolean;
 
-  @Column({ type: 'int8', default: 0 })
+  @Column({ type: 'int8', default: 0, nullable: true })
   view: number;
 
   @Column({ default: 0 })
@@ -24,10 +24,10 @@ export class Film extends BaseEntity {
   @Column({ length: 100, default: '' })
   thumbnail: string;
 
-  @Column({ length: 100, default: '' })
+  @Column({ length: 100, default: '', nullable: true })
   path: string;
 
-  @Column({ default: 0 })
+  @Column({ default: 0, nullable: true })
   order: number;
 
   @Column({ default: 'Unknown' })

@@ -13,9 +13,11 @@ export class ValidationPipe implements PipeTransform<any> {
     if (!metatype || !this.toValidate(metatype)) {
       return value;
     }
+
     const object = plainToInstance(metatype, value);
     const errors = await validate(object);
 
+    //throw 1 error message
     if (errors.length === 1) {
       const firstErrorConstraint = errors[0]?.constraints;
       for (let error in firstErrorConstraint) {
@@ -23,6 +25,7 @@ export class ValidationPipe implements PipeTransform<any> {
       }
     }
 
+    //throw multiple error messages
     if (errors.length > 1) {
       let errorMessageList = [];
       for (let error of errors) {

@@ -18,6 +18,9 @@ export const ERROR_MESSAGE = {
     return `Value of ${columnName} is not appropriate`;
   },
   IS_DATE: function (columnName: string) {
-    return `${columnName} must follow the date format`;
+    return `${columnName} must follow the date format (yyyy-mm-dd)`;
+  },
+  IS_BOOLEAN: function (columnName: string) {
+    return `${columnName} must be true or false`;
   },
 };
