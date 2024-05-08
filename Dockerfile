@@ -12,3 +12,8 @@ COPY . .
 EXPOSE 4000
 # Start the application in development mode
 CMD ["yarn", "run", "start:dev"]
+
+
+
+
+

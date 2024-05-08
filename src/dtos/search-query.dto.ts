@@ -3,18 +3,14 @@ import { Transform } from 'class-transformer';
 
 export class SearchQuery {
   @Optional()
-  @Transform(({ value }) => value.trim())
+  @Transform(({ value }) => value.trim() || '')
   key: string;
 
-  @Optional()
+  // @Optional()
   @Transform(({ value }) => value.trim())
   max_value: string;
 
-  @Optional()
-  @Transform(({ value }) => {
-    value.trim();
-    value = parseInt(value);
-    return value;
-  })
-  min_value: number;
+  // @Optional()
+  @Transform(({ value }) => value.trim())
+  min_value: string;
 }

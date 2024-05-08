@@ -11,6 +11,7 @@ import { UpdateFilmDTO } from '@dto/film/update-film.dto';
 import { PartialUpdateFilmDTO } from '@dto/film/partial-update-film.dto';
 import { FILM_ERROR_MESSAGE } from '@custom-messages/film.message';
 import { ERROR_MESSAGE } from '@custom-messages/error.message';
+import { SearchQuery } from '@dto/search-query.dto';
 
 @Injectable()
 export class FilmService {
@@ -43,7 +44,7 @@ export class FilmService {
       throw new BadRequestException(ERROR_MESSAGE.MIN_VALUE('max view'));
     }
 
-    if (minView > maxView) {
+    if (customMinView > customMaxView) {
       throw new BadRequestException(
         ERROR_MESSAGE.VALUE_MUST_BE_GREATER_THAN_OTHER_VALUE(
           'max view',
@@ -120,7 +121,7 @@ export class FilmService {
     });
 
     if (!film) {
-      throw new NotFoundException(FILM_ERROR_MESSAGE.NOT_FOUND);
+      throw new NotFoundException(FILM_ERROR_MESSAGE.NOT_FOUND_ID);
     }
 
     const filmByTitle: Film = await this.filmRepository.findOne({

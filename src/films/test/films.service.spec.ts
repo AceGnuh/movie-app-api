@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { FilmService } from '@films/film.service';
+import { FilmService } from '@films/films.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository, UpdateResult } from 'typeorm';
 import {
@@ -15,7 +15,7 @@ import { Film } from '@entities/film.entity';
 import { FILM_ERROR_MESSAGE } from '@custom-messages/film.message';
 import { NotFoundException } from '@nestjs/common';
 
-describe('FilmResolver', () => {
+describe('Test FilmService', () => {
   let filmService: FilmService;
   let filmRepository: Repository<Film>;
 
@@ -78,7 +78,7 @@ describe('FilmResolver', () => {
     });
   });
 
-  describe('mutation: add film', () => {
+  describe('add film', () => {
     it('should create a new film object', async () => {
       jest.spyOn(filmRepository, 'save').mockResolvedValue(mockFilm);
       expect(filmRepository.findOne).toHaveBeenCalled();
@@ -101,7 +101,7 @@ describe('FilmResolver', () => {
     });
   });
 
-  describe('mutation: update film', () => {
+  describe('update film', () => {
     it(`should not modify a film object because not found id`, async () => {
       jest.spyOn(filmRepository, 'findOne').mockResolvedValue(null);
 
@@ -109,7 +109,7 @@ describe('FilmResolver', () => {
         return await filmService.update(mockFilmId, mockDataUpdate);
       };
 
-      expect(result()).rejects.toThrow(FILM_ERROR_MESSAGE.NOT_FOUND);
+      expect(result()).rejects.toThrow(FILM_ERROR_MESSAGE.NOT_FOUND_ID);
       expect(filmRepository.findOne).toHaveBeenCalled();
       expect(filmRepository.update).not.toHaveBeenCalled();
     });
@@ -139,16 +139,11 @@ describe('FilmResolver', () => {
         .mockResolvedValue({ raw: mockFilm, affected: 1 } as UpdateResult);
 
       const film = await filmService.update(mockFilmId, mockDataUpdate);
-
-      // expect(filmRepository.update).toHaveBeenCalledWith(
-      //   mockFilmId,
-      //   mockDataUpdate,
-      // );
       expect(film).toEqual({ ...mockFilm, ...mockDataUpdate });
     });
   });
 
-  describe('mutation: delete film', () => {
+  describe('delete film', () => {
     it(`should not delete a film object because not found id`, async () => {
       jest.spyOn(filmRepository, 'findOne').mockResolvedValue(null);
 

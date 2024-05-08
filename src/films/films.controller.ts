@@ -17,7 +17,7 @@ import {
   Res,
   NotFoundException,
 } from '@nestjs/common';
-import { FilmService } from './film.service';
+import { FilmService } from './films.service';
 import { Film } from '@entities/film.entity';
 import { ResponseDTO } from 'src/dtos/response.dto';
 import { CreateFilmDTO } from '@dto/film/create-film.dto';
@@ -29,6 +29,7 @@ import {
 } from '@custom-messages/film.message';
 import { Response } from 'express';
 import { CustomParseUUIDPipe } from 'src/middlewares/custom-parse-uuid';
+import { SearchQuery } from '@dto/search-query.dto';
 
 @Controller('films')
 @UsePipes(new ValidationPipe({ transform: true }))
